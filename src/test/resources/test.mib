@@ -1,0 +1,64 @@
+TEST-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+   MODULE-IDENTITY,enterprises, 
+   IpAddress ,Integer32		   					FROM SNMPv2-SMI
+   Ipv6Address 									FROM IPV6-TC
+   DisplayString                                FROM SNMPv2-TC
+   OBJECT-TYPE                                  FROM RFC-1212
+   NOTIFICATION-TYPE                        	FROM SNMPv2-SMI
+   -- TRAP-TYPE                                 FROM RFC-1215
+   SnmpSecurityModel,
+   SnmpMessageProcessingModel,
+   SnmpSecurityLevel,
+   SnmpAdminString				      			FROM SNMP-FRAMEWORK-MIB
+   KeyChange									FROM SNMP-USER-BASED-SM-MIB
+   TEXTUAL-CONVENTION							FROM SNMPv2-TC
+   MODULE-COMPLIANCE, OBJECT-GROUP , 
+   NOTIFICATION-GROUP      						FROM SNMPv2-CONF;
+   
+sysDetails MODULE-IDENTITY
+    LAST-UPDATED ""
+    ORGANIZATION "xxx"
+    CONTACT-INFO
+                  ""
+    DESCRIPTION
+        ""
+
+	REVISION 	""
+	DESCRIPTION
+        ""
+    ::= { xxx 20 }  
+  
+xxx                   OBJECT IDENTIFIER ::=  { enterprises 42578 }
+ippdu1                     OBJECT IDENTIFIER ::=  { sysDetails  1 }
+rs485pdu1                     OBJECT IDENTIFIER ::=  { sysDetails  2 }
+-- ddd
+
+voltage OBJECT-TYPE
+    SYNTAX INTEGER {0..65535}
+    MAX-ACCESS read
+    STATUS current
+    DESCRIPTION 
+        ""
+    ::= { ippdu1 1 }
+
+
+deviceStatus OBJECT-TYPE
+    SYNTAX INTEGER {0..65535}
+    MAX-ACCESS read
+    STATUS current
+    DESCRIPTION 
+        ""
+    ::= { rs485pdu1 1 }                                
+
+
+voltage OBJECT-TYPE
+    SYNTAX INTEGER {0..65535}
+    MAX-ACCESS read
+    STATUS current
+    DESCRIPTION 
+        ""
+    ::= { rs485pdu1 2 }
+
+END   
