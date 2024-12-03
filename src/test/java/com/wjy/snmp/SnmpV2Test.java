@@ -27,7 +27,7 @@ public class SnmpV2Test {
     public void setUp() {
         // open snmp service in your machine
         int poolSize = 2;
-        String listenAddr = "udp:127.0.0.1/1163";
+        String listenAddr = "udp:0.0.0.0/163";
         snmpV2 = new SnmpV2(poolSize, listenAddr);
         snmpV2.addCommandResponder(new SnmpTrapReceiver(new BizSnmpTrapReceiverHandler() {
             @Override
@@ -62,8 +62,7 @@ public class SnmpV2Test {
         Snmp snmp = new Snmp(transport);
         PDU pdu = new PDU();
         pdu.setType(PDU.TRAP);
-        // listen 1163 port and send
-        Address targetAddress = new UdpAddress("127.0.0.1/1163");
+        Address targetAddress = new UdpAddress("127.0.0.1/163");
 
         pdu.add(new VariableBinding(SnmpConstants.snmpTrapOID,
                 new OID(".1.3.6.1.2.1.1.7")));
