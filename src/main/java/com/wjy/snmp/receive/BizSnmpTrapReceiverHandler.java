@@ -13,9 +13,9 @@ public interface BizSnmpTrapReceiverHandler {
     /**
      * 不需要应答
      *
-     * @param pdu
+     * @param pduData
      * @return void
      * @date 2024/11/28 19:31
      */
-    void handlePdu(PDU pdu);
+    void handlePdu(PduData pdu);
 }

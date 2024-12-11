@@ -1,11 +1,14 @@
 package com.wjy.snmp.receive;
 
+import com.wjy.snmp.SnmpHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.snmp4j.CommandResponder;
 import org.snmp4j.CommandResponderEvent;
 import org.snmp4j.MessageException;
 import org.snmp4j.PDU;
 import org.snmp4j.mp.StatusInformation;
+
+import java.util.HashMap;
 
 /**
  * snmp消息接收
@@ -32,7 +35,9 @@ public class SnmpReceiver implements CommandResponder {
             }
             PDU rspPdu = null;
             if (handler != null) {
-                rspPdu = handler.handlePdu(pdu);
+                HashMap<String, String> oidValueMap = handler.handlePdu(SnmpHelper.wrapperPduData(pdu,
+                        event.getPeerAddress()));
+                rspPdu = SnmpHelper.wrapperPdu(oidValueMap);
             }
             if (pdu.isConfirmedPdu()) {
                 // 需要应答

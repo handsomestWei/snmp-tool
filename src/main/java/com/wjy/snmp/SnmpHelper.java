@@ -1,10 +1,8 @@
 package com.wjy.snmp;
 
+import com.wjy.snmp.receive.PduData;
 import org.snmp4j.PDU;
-import org.snmp4j.smi.OID;
-import org.snmp4j.smi.OctetString;
-import org.snmp4j.smi.Variable;
-import org.snmp4j.smi.VariableBinding;
+import org.snmp4j.smi.*;
 import org.snmp4j.util.TableEvent;
 
 import java.util.HashMap;
@@ -65,9 +63,7 @@ public class SnmpHelper {
         }
         for (TableEvent tableEvent : tableEventList) {
             VariableBinding[] vbs = tableEvent.getColumns();
-            if (vbs != null && vbs.length > 0) {
-                vbMap.putAll(convertVb(vbs[0]));
-            }
+            vbMap.putAll(convertVbArray(vbs));
         }
         return vbMap;
     }
@@ -88,5 +84,17 @@ public class SnmpHelper {
             pdu.add(new VariableBinding(new OID(entry.getKey()),
                     new OctetString(entry.getValue())));
         return pdu;
+    }
+
+    public static PduData wrapperPduData(PDU pdu, Address address) {
+        PduData pduData = new PduData();
+        try {
+            String[] addrArray = address.toString().split("/");
+            pduData.setIp(addrArray[0]);
+            pduData.setPort(addrArray[1]);
+        } catch (Exception ignored) {
+        }
+        pduData.setDataMap(convertPdu(pdu));
+        return pduData;
     }
 }

@@ -1,5 +1,6 @@
 package com.wjy.snmp.receive;
 
+import com.wjy.snmp.SnmpHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.snmp4j.CommandResponder;
 import org.snmp4j.CommandResponderEvent;
@@ -31,7 +32,7 @@ public class SnmpTrapReceiver implements CommandResponder {
             switch (pdu.getType()) {
                 case PDU.TRAP:
                 case PDU.V1TRAP:
-                    handler.handlePdu(pdu);
+                    handler.handlePdu(SnmpHelper.wrapperPduData(pdu, event.getPeerAddress()));
                 default:
                     // not a Trap, ignore
                     break;
