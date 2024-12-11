@@ -84,7 +84,11 @@ public class SnmpV2 extends SnmpV1 {
     public List<TableEvent> getBulkTable(String ip, int port, String community, String oid, String startOid,
                                          String endOid) {
         return this.getTable(ip, port, community, oid, startOid, endOid, PDU.GETBULK);
+    }
 
+    // the input oid need remove tail .0
+    public List<TableEvent> getBulkTable(String ip, int port, String community, List<String> oidList) {
+        return this.getTable(ip, port, community, oidList, PDU.GETBULK);
     }
 
     @Deprecated
@@ -102,9 +106,23 @@ public class SnmpV2 extends SnmpV1 {
         OID lowerBoundIndex = startOid != null ? new OID(startOid) : null;
         OID upperBoundIndex = endOid != null ? new OID(endOid) : null;
         log.debug("snmp get table req optType={} target={}, oid={}, startOid={}, endOid={}", optType, target, oid,
-                startOid,
-                endOid);
+                startOid, endOid);
         List<TableEvent> tableEventList = utils.getTable(target, columnOidArray, lowerBoundIndex, upperBoundIndex);
+        log.debug("snmp get table rsp {}", tableEventList);
+        return tableEventList;
+    }
+
+    protected List<TableEvent> getTable(String ip, int port, String community, List<String> oidList, int optType) {
+        Target target = this.createTarget(community, ip, port);
+        TableUtils utils = new TableUtils(this.getSnmp(), new DefaultPDUFactory(
+                optType));
+        OID[] columnOidArray = new OID[oidList.size()];
+        for (int i = 0; i < oidList.size(); i++) {
+            columnOidArray[i] = new OID(oidList.get(i));
+        }
+        log.debug("snmp get table req optType={} target={}, oid={}, startOid={}, endOid={}", optType, target,
+                columnOidArray, null, null);
+        List<TableEvent> tableEventList = utils.getTable(target, columnOidArray, null, null);
         log.debug("snmp get table rsp {}", tableEventList);
         return tableEventList;
     }

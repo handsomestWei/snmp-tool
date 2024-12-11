@@ -1,6 +1,7 @@
 package com.wjy.snmp;
 
 import com.wjy.snmp.receive.BizSnmpTrapReceiverHandler;
+import com.wjy.snmp.receive.PduData;
 import com.wjy.snmp.receive.SnmpTrapReceiver;
 import org.junit.After;
 import org.junit.Assert;
@@ -16,6 +17,8 @@ import org.snmp4j.smi.*;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.snmp4j.util.TableEvent;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -31,7 +34,7 @@ public class SnmpV2Test {
         snmpV2 = new SnmpV2(poolSize, listenAddr);
         snmpV2.addCommandResponder(new SnmpTrapReceiver(new BizSnmpTrapReceiverHandler() {
             @Override
-            public void handlePdu(PDU pdu) {
+            public void handlePdu(PduData pduData) {
             }
         }));
     }
@@ -42,9 +45,20 @@ public class SnmpV2Test {
     }
 
     @Test
-    public void getBulkTable() {
+    public void getBulkTable_1() {
         List<TableEvent> tableEventList = snmpV2.getBulkTable("127.0.0.1", 161, "public",
                 "1.3.6.1.2.1.1", null, null);
+
+        HashMap<String, String> vbMap = SnmpHelper.convertTbEventList(tableEventList);
+        System.out.println(vbMap);
+        Assert.assertNotNull(vbMap);
+    }
+
+    @Test
+    public void getBulkTable_2() {
+        List<String> oidList = Arrays.asList("1.3.6.1.2.1.1.1", "1.3.6.1.2.1.1.2");
+        List<TableEvent> tableEventList = snmpV2.getBulkTable("127.0.0.1", 161, "public",
+                oidList);
 
         HashMap<String, String> vbMap = SnmpHelper.convertTbEventList(tableEventList);
         System.out.println(vbMap);
