@@ -75,26 +75,23 @@ public class SnmpHelper {
         return convertVbArray(vbs);
     }
 
-    public static PDU wrapperPdu(HashMap<String, String> oidValueMap) {
-        PDU pdu = new PDU();
-        if (oidValueMap == null) {
-            return pdu;
-        }
-        for (Map.Entry<String, String> entry : oidValueMap.entrySet())
-            pdu.add(new VariableBinding(new OID(entry.getKey()),
-                    new OctetString(entry.getValue())));
-        return pdu;
-    }
-
     public static PduData wrapperPduData(PDU pdu, Address address) {
         PduData pduData = new PduData();
         try {
-            String[] addrArray = address.toString().split("/");
-            pduData.setIp(addrArray[0]);
-            pduData.setPort(addrArray[1]);
+            Map.Entry<String, String> ipAddrEntry = parseIpAddress(address);
+            pduData.setIp(ipAddrEntry.getKey());
+            pduData.setPort(ipAddrEntry.getValue());
         } catch (Exception ignored) {
         }
         pduData.setDataMap(convertPdu(pdu));
         return pduData;
+    }
+
+    // key=ip, value=port
+    public static Map.Entry<String, String> parseIpAddress(Address address) {
+        HashMap<String, String> ipAddrMap = new HashMap<>();
+        String[] addrArray = address.toString().split("/");
+        ipAddrMap.put(addrArray[0], addrArray[1]);
+        return ipAddrMap.entrySet().iterator().next();
     }
 }

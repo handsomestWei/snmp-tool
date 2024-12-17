@@ -1,7 +1,5 @@
 package com.wjy.snmp.receive;
 
-import org.snmp4j.PDU;
-
 /**
  * snmp trap接收报文业务处理接口
  *
@@ -17,5 +15,5 @@ public interface BizSnmpTrapReceiverHandler {
      * @return void
      * @date 2024/11/28 19:31
      */
-    void handlePdu(PduData pdu);
+    void handlePdu(PduData pduData);
 }

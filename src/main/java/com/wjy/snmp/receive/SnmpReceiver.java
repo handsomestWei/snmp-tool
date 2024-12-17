@@ -27,19 +27,17 @@ public class SnmpReceiver implements CommandResponder {
 
     @Override
     public void processPdu(CommandResponderEvent event) {
+        PDU pdu = event.getPDU();
         try {
-            PDU pdu = event.getPDU();
             log.debug("snmp receiver addr={} pdu={}", event.getPeerAddress(), pdu);
             if (pdu == null) {
                 return;
             }
             PDU rspPdu = null;
             if (handler != null) {
-                HashMap<String, String> oidValueMap = handler.handlePdu(SnmpHelper.wrapperPduData(pdu,
-                        event.getPeerAddress()));
-                rspPdu = SnmpHelper.wrapperPdu(oidValueMap);
+                rspPdu = handler.handlePdu(pdu);
             }
-            if (pdu.isConfirmedPdu()) {
+            if (pdu.isConfirmedPdu() && rspPdu != null) {
                 // 需要应答
                 sendResponse(event, rspPdu);
             }
@@ -49,8 +47,6 @@ public class SnmpReceiver implements CommandResponder {
     }
 
     public void sendResponse(CommandResponderEvent event, PDU pdu) throws MessageException {
-        pdu.setErrorIndex(0);
-        pdu.setErrorStatus(0);
         pdu.setType(PDU.RESPONSE);
         StatusInformation statusInformation = new StatusInformation();
         event.getMessageDispatcher().returnResponsePdu(event.getMessageProcessingModel(),
