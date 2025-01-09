@@ -1,5 +1,6 @@
 package com.wjy.snmp;
 
+import com.wjy.snmp.listen.TableRspListener;
 import lombok.extern.slf4j.Slf4j;
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
@@ -13,10 +14,13 @@ import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.util.DefaultPDUFactory;
 import org.snmp4j.util.TableEvent;
+import org.snmp4j.util.TableListener;
 import org.snmp4j.util.TableUtils;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * snmp协议v2版本实现
@@ -31,11 +35,6 @@ public class SnmpV2 extends SnmpV1 {
      * @see org.snmp4j.util.TableUtils#getMaxNumRowsPerPDU()
      */
     public static final int DEFAULT_MAX_NUM_OF_ROW_PER_PDU = 10;
-
-    /**
-     * @see TableUtils#getIgnoreMaxLexicographicRowOrderingErrors()
-     */
-    public static final int DEFAULT_IGNORE_MAX_ROW_ORDER_ERRORS = 3;
 
     public SnmpV2() {
         super();
@@ -93,37 +92,36 @@ public class SnmpV2 extends SnmpV1 {
     // fast more than getNext
     public List<TableEvent> getBulkTable(String ip, int port, String community, String oid, String startOid,
                                          String endOid) {
-        return this.getTable(ip, port, community, oid, startOid, endOid, PDU.GETBULK, DEFAULT_MAX_NUM_OF_ROW_PER_PDU,
-                DEFAULT_IGNORE_MAX_ROW_ORDER_ERRORS);
+        return this.getTable(ip, port, community, oid, startOid, endOid, PDU.GETBULK, DEFAULT_MAX_NUM_OF_ROW_PER_PDU);
 
     }
 
     // the input oid need remove tail .0
     public List<TableEvent> getBulkTable(String ip, int port, String community, List<String> oidList) {
-        return this.getTable(ip, port, community, oidList, PDU.GETBULK, DEFAULT_MAX_NUM_OF_ROW_PER_PDU,
-                DEFAULT_IGNORE_MAX_ROW_ORDER_ERRORS);
+        return this.getTable(ip, port, community, oidList, PDU.GETBULK, DEFAULT_MAX_NUM_OF_ROW_PER_PDU);
     }
 
     public List<TableEvent> getBulkTable(String ip, int port, String community, List<String> oidList,
-                                         int maxNumOfRowsPerPdu,
-                                         int ignoreMaxLexicographicRowOrderingErrors) {
-        return this.getTable(ip, port, community, oidList, PDU.GETBULK, maxNumOfRowsPerPdu,
-                ignoreMaxLexicographicRowOrderingErrors);
+                                         int maxNumOfRowsPerPdu) {
+        return this.getTable(ip, port, community, oidList, PDU.GETBULK, maxNumOfRowsPerPdu);
+    }
+
+    // 异步
+    public void getBulkTableAsync(String ip, int port, String community, List<String> oidList,
+                                  int maxNumOfRowsPerPdu, Consumer<HashMap<String, String>> asyncRspHdl) {
+        this.getTableAsync(ip, port, community, oidList, PDU.GETBULK, maxNumOfRowsPerPdu, asyncRspHdl);
     }
 
     public List<TableEvent> getNextTable(String ip, int port, String community, String oid, String startOid,
                                          String endOid) {
-        return this.getTable(ip, port, community, oid, startOid, endOid, PDU.GETNEXT, DEFAULT_MAX_NUM_OF_ROW_PER_PDU,
-                DEFAULT_IGNORE_MAX_ROW_ORDER_ERRORS);
+        return this.getTable(ip, port, community, oid, startOid, endOid, PDU.GETNEXT, DEFAULT_MAX_NUM_OF_ROW_PER_PDU);
     }
 
     protected List<TableEvent> getTable(String ip, int port, String community, String oid, String startOid,
-                                        String endOid, int optType, int maxNumOfRowsPerPdu,
-                                        int ignoreMaxLexicographicRowOrderingErrors) {
+                                        String endOid, int optType, int maxNumOfRowsPerPdu) {
         Target target = this.createTarget(community, ip, port);
         TableUtils utils = new TableUtils(this.getSnmp(), new DefaultPDUFactory(optType));
         utils.setMaxNumRowsPerPDU(maxNumOfRowsPerPdu);
-        utils.setIgnoreMaxLexicographicRowOrderingErrors(ignoreMaxLexicographicRowOrderingErrors);
         OID[] columnOidArray = new OID[]{new OID(oid)};
         OID lowerBoundIndex = startOid != null ? new OID(startOid) : null;
         OID upperBoundIndex = endOid != null ? new OID(endOid) : null;
@@ -135,12 +133,10 @@ public class SnmpV2 extends SnmpV1 {
     }
 
     protected List<TableEvent> getTable(String ip, int port, String community, List<String> oidList, int optType,
-                                        int maxNumOfRowsPerPdu,
-                                        int ignoreMaxLexicographicRowOrderingErrors) {
+                                        int maxNumOfRowsPerPdu) {
         Target target = this.createTarget(community, ip, port);
         TableUtils utils = new TableUtils(this.getSnmp(), new DefaultPDUFactory(optType));
         utils.setMaxNumRowsPerPDU(maxNumOfRowsPerPdu);
-        utils.setIgnoreMaxLexicographicRowOrderingErrors(ignoreMaxLexicographicRowOrderingErrors);
         OID[] columnOidArray = new OID[oidList.size()];
         for (int i = 0; i < oidList.size(); i++) {
             columnOidArray[i] = new OID(oidList.get(i));
@@ -149,5 +145,19 @@ public class SnmpV2 extends SnmpV1 {
         List<TableEvent> tableEventList = utils.getTable(target, columnOidArray, null, null);
         log.debug("snmp get table rsp {}", tableEventList);
         return tableEventList;
+    }
+
+    protected void getTableAsync(String ip, int port, String community, List<String> oidList, int optType,
+                                 int maxNumOfRowsPerPdu, Consumer<HashMap<String, String>> asyncRspHdl) {
+        Target target = this.createTarget(community, ip, port);
+        TableUtils utils = new TableUtils(this.getSnmp(), new DefaultPDUFactory(optType));
+        utils.setMaxNumRowsPerPDU(maxNumOfRowsPerPdu);
+        OID[] columnOidArray = new OID[oidList.size()];
+        for (int i = 0; i < oidList.size(); i++) {
+            columnOidArray[i] = new OID(oidList.get(i));
+        }
+        TableListener rspListener = new TableRspListener(asyncRspHdl);
+        log.debug("snmp get table async req optType={} target={}, oid={}", optType, target, columnOidArray);
+        utils.getTable(target, columnOidArray, rspListener, null, null, null);
     }
 }

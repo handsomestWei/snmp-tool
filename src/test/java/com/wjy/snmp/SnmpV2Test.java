@@ -17,9 +17,11 @@ import org.snmp4j.smi.*;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 import org.snmp4j.util.TableEvent;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class SnmpV2Test {
 
@@ -62,6 +64,22 @@ public class SnmpV2Test {
         HashMap<String, String> vbMap = SnmpHelper.convertTbEventList(tableEventList);
         System.out.println(vbMap);
         Assert.assertNotNull(vbMap);
+    }
+
+    @Test
+    public void getBulkTableAsync_1() throws Exception {
+        Consumer<HashMap<String, String>> asyncRspHdl = (vbMap) -> {
+            for (String oid : vbMap.keySet()) {
+                System.out.println(oid + "," + vbMap.get(oid));
+            }
+            System.out.println(vbMap.size());
+        };
+
+        List<String> oidList = new ArrayList<>();
+        oidList.add("1.3.6.1.2.1.1");
+        snmpV2.getBulkTableAsync("127.0.0.1", 161, "public",
+                oidList, 100, asyncRspHdl);
+        Thread.currentThread().sleep(3 * 1000);
     }
 
     @Test

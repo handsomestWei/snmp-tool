@@ -6,6 +6,7 @@ import org.snmp4j.smi.*;
 import org.snmp4j.util.TableEvent;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +38,7 @@ public class SnmpHelper {
     }
 
     public static HashMap<String, String> convertVb(VariableBinding vb) {
-        HashMap<String, String> vbMap = new HashMap<>();
+        LinkedHashMap<String, String> vbMap = new LinkedHashMap<>();
         if (vb == null) {
             return vbMap;
         }
@@ -46,7 +47,7 @@ public class SnmpHelper {
     }
 
     public static HashMap<String, String> convertVbArray(VariableBinding[] vbs) {
-        HashMap<String, String> vbMap = new HashMap<>();
+        LinkedHashMap<String, String> vbMap = new LinkedHashMap<>();
         if (vbs == null) {
             return vbMap;
         }
@@ -57,7 +58,7 @@ public class SnmpHelper {
     }
 
     public static HashMap<String, String> convertTbEventList(List<TableEvent> tableEventList) {
-        HashMap<String, String> vbMap = new HashMap<>();
+        LinkedHashMap<String, String> vbMap = new LinkedHashMap<>();
         if (tableEventList == null) {
             return vbMap;
         }

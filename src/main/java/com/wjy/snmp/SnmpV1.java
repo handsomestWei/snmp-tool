@@ -44,8 +44,7 @@ public class SnmpV1 extends AbsSnmpBase {
 
     protected Snmp newSnmp() throws IOException {
         ThreadPool threadPool =
-                ThreadPool.create("snmp-" + this.getClass().getSimpleName() + "-" + this.hashCode() +
-                                "-pool",
+                ThreadPool.create("snmp-" + this.getClass().getSimpleName() + "-" + this.hashCode() + "-pool",
                         super.getDispatchPoolSize());
         MessageDispatcher messageDispatcher = new MultiThreadedMessageDispatcher(threadPool,
                 new MessageDispatcherImpl());
