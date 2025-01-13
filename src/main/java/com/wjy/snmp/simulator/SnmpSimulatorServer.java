@@ -26,8 +26,8 @@ public class SnmpSimulatorServer implements Runnable {
     private static final String snmpOidDataCsvSuffix = "_snmp.csv";
     // 自定义oid处理器包前缀
     private static final String ctmHdlClazzPackagePrefix = "com.wjy.snmp.simulator.ctm.";
-    @CommandLine.Option(names = {"-conf", "--confFilePath"}, description = "config.properties file path.")
-    String configFilePath = System.getProperty("user.dir") + "/config.properties";
+    @CommandLine.Option(names = {"-conf", "--confFilePath"}, description = "simulator-config.properties file path.")
+    String configFilePath = System.getProperty("user.dir") + "/simulator-config.properties";
     @CommandLine.Option(names = {"-ip", "--ip"}, description = "server listen ip.")
     private String listenIp = "0.0.0.0";
     @CommandLine.Option(names = {"-p", "--port"}, description = "server listen port.")
