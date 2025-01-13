@@ -32,7 +32,7 @@ public class SnmpTrapReceiver implements CommandResponder {
             switch (pdu.getType()) {
                 case PDU.TRAP:
                 case PDU.V1TRAP:
-                    handler.handlePdu(SnmpHelper.wrapperPduData(pdu, event.getPeerAddress()));
+                    handler.handlePdu(SnmpHelper.wrapperPduReqData(pdu, event.getPeerAddress()));
                 default:
                     // not a Trap, ignore
                     break;

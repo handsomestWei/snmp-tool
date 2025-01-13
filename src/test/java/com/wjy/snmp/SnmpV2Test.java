@@ -1,7 +1,7 @@
 package com.wjy.snmp;
 
 import com.wjy.snmp.receive.BizSnmpTrapReceiverHandler;
-import com.wjy.snmp.receive.PduData;
+import com.wjy.snmp.receive.PduReqData;
 import com.wjy.snmp.receive.SnmpTrapReceiver;
 import org.junit.After;
 import org.junit.Assert;
@@ -35,7 +35,7 @@ public class SnmpV2Test {
         snmpV2 = new SnmpV2(poolSize, listenAddr);
         snmpV2.addCommandResponder(new SnmpTrapReceiver(new BizSnmpTrapReceiverHandler() {
             @Override
-            public void handlePdu(PduData pduData) {
+            public void handlePdu(PduReqData pduReqData) {
             }
         }));
     }

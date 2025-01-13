@@ -27,19 +27,21 @@ public class SnmpReceiver implements CommandResponder {
 
     @Override
     public void processPdu(CommandResponderEvent event) {
-        PDU pdu = event.getPDU();
         try {
+            PDU pdu = event.getPDU();
             log.debug("snmp receiver addr={} pdu={}", event.getPeerAddress(), pdu);
             if (pdu == null) {
                 return;
             }
-            PDU rspPdu = null;
+            PduRspData pduRspData = null;
             if (handler != null) {
-                rspPdu = handler.handlePdu(pdu);
+                pduRspData = handler.handlePdu(SnmpHelper.wrapperPduReqData(pdu,
+                        event.getPeerAddress()));
             }
-            if (pdu.isConfirmedPdu() && rspPdu != null) {
+            if (pdu.isConfirmedPdu()) {
                 // 需要应答
-                sendResponse(event, rspPdu);
+                pdu = SnmpHelper.wrapperRspDataToPdu(pduRspData, pdu);
+                sendResponse(event, pdu);
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);

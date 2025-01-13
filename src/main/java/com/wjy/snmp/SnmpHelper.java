@@ -1,14 +1,12 @@
 package com.wjy.snmp;
 
-import com.wjy.snmp.receive.PduData;
+import com.wjy.snmp.receive.PduReqData;
+import com.wjy.snmp.receive.PduRspData;
 import org.snmp4j.PDU;
 import org.snmp4j.smi.*;
 import org.snmp4j.util.TableEvent;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * snmp4j类库数据类型转换为通用类型
@@ -38,7 +36,7 @@ public class SnmpHelper {
     }
 
     public static HashMap<String, String> convertVb(VariableBinding vb) {
-        LinkedHashMap<String, String> vbMap = new LinkedHashMap<>();
+        HashMap<String, String> vbMap = new HashMap<>();
         if (vb == null) {
             return vbMap;
         }
@@ -76,23 +74,48 @@ public class SnmpHelper {
         return convertVbArray(vbs);
     }
 
-    public static PduData wrapperPduData(PDU pdu, Address address) {
-        PduData pduData = new PduData();
-        try {
-            Map.Entry<String, String> ipAddrEntry = parseIpAddress(address);
-            pduData.setIp(ipAddrEntry.getKey());
-            pduData.setPort(ipAddrEntry.getValue());
-        } catch (Exception ignored) {
-        }
-        pduData.setDataMap(convertPdu(pdu));
-        return pduData;
-    }
-
     // key=ip, value=port
     public static Map.Entry<String, String> parseIpAddress(Address address) {
         HashMap<String, String> ipAddrMap = new HashMap<>();
         String[] addrArray = address.toString().split("/");
         ipAddrMap.put(addrArray[0], addrArray[1]);
         return ipAddrMap.entrySet().iterator().next();
+    }
+
+    public static PduReqData wrapperPduReqData(PDU pdu, Address address) {
+        PduReqData pduReqData = new PduReqData();
+        try {
+            String[] addrArray = address.toString().split("/");
+            pduReqData.setIp(addrArray[0]);
+            pduReqData.setPort(addrArray[1]);
+        } catch (Exception ignored) {
+        }
+        pduReqData.setOptType(pdu.getType());
+        pduReqData.setDataSize(pdu.getMaxRepetitions());
+        pduReqData.setDataMap(convertPdu(pdu));
+        return pduReqData;
+    }
+
+    public static PDU wrapperRspDataToPdu(PduRspData pduRspData, PDU pdu) {
+        if (pduRspData == null) {
+            return pdu;
+        }
+        Vector<VariableBinding> vbs = new Vector<>();
+        HashMap<String, String> oidValueMap = pduRspData.getDataMap();
+        if (oidValueMap != null) {
+            for (Map.Entry<String, String> entry : oidValueMap.entrySet()) {
+                String val = entry.getValue();
+                VariableBinding vb = new VariableBinding();
+                vb.setOid(new OID(entry.getKey()));
+                if (val != null && !val.isEmpty()) {
+                    vb.setVariable(new OctetString(val));
+                } else {
+                    vb.setVariable(new Null());
+                }
+                vbs.add(vb);
+            }
+        }
+        pdu.setVariableBindings(vbs);
+        return pdu;
     }
 }
