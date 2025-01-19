@@ -1,4 +1,8 @@
 # snmp-tool
+![Static Badge](https://img.shields.io/badge/build-passing-green)
+![Static Badge](https://img.shields.io/badge/stars-please-green)
+![Static Badge](https://img.shields.io/badge/issue-thanks-green)
+
 snmp tool for send, receive, device simulator, mib parse 
 
 ## About
