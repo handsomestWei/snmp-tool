@@ -8,8 +8,6 @@ import org.snmp4j.MessageException;
 import org.snmp4j.PDU;
 import org.snmp4j.mp.StatusInformation;
 
-import java.util.HashMap;
-
 /**
  * snmp消息接收
  *
@@ -35,8 +33,9 @@ public class SnmpReceiver implements CommandResponder {
             }
             PduRspData pduRspData = null;
             if (handler != null) {
-                pduRspData = handler.handlePdu(SnmpHelper.wrapperPduReqData(pdu,
-                        event.getPeerAddress()));
+                PduReqData pduReqData = SnmpHelper.wrapperPduReqData(pdu, event.getPeerAddress());
+                pduReqData.setRelayInfo(SnmpHelper.parseRelayInfo(event));
+                pduRspData = handler.handlePdu(pduReqData);
             }
             if (pdu.isConfirmedPdu()) {
                 // 需要应答

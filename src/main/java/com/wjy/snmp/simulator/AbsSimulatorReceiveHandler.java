@@ -1,10 +1,12 @@
 package com.wjy.snmp.simulator;
 
+import com.wjy.snmp.SnmpV2;
 import com.wjy.snmp.receive.BizSnmpReceiveHandler;
 import com.wjy.snmp.receive.PduReqData;
 import com.wjy.snmp.receive.PduRspData;
 import com.wjy.snmp.simulator.ctm.CtmOidInfo;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.snmp4j.PDU;
 
@@ -33,9 +35,13 @@ public abstract class AbsSimulatorReceiveHandler<T> implements BizSnmpReceiveHan
     private Integer randomNetWorkDelayMsSeed;
     // 随机异常种子
     private Integer randomErrorSeed;
+    // snmp发送客户端实例，转发用
+    @Setter
+    @Getter
+    private SnmpV2 snmpV2;
 
     public AbsSimulatorReceiveHandler(String oidDataFilePath, Integer randomNetWorkDelayMsSeed,
-                                      Integer randomErrorSeed) {
+            Integer randomErrorSeed) {
         this.randomNetWorkDelayMsSeed = randomNetWorkDelayMsSeed;
         this.randomErrorSeed = randomErrorSeed;
         this.oidDataMap = loadOidCsvData(oidDataFilePath);
@@ -77,7 +83,7 @@ public abstract class AbsSimulatorReceiveHandler<T> implements BizSnmpReceiveHan
         return baseOidInfo;
     }
 
-    private void handleGetOpt(PduReqData pduReqData, PduRspData pduRspData) {
+    public void handleGetOpt(PduReqData pduReqData, PduRspData pduRspData) {
         for (String oid : pduReqData.getDataMap().keySet()) {
             BaseOidInfo<T> baseOidInfo = oidDataMap.get(oid);
             if (baseOidInfo == null) {
@@ -88,7 +94,7 @@ public abstract class AbsSimulatorReceiveHandler<T> implements BizSnmpReceiveHan
         }
     }
 
-    private void handleGetBulkOpt(PduReqData pduReqData, PduRspData pduRspData) {
+    public void handleGetBulkOpt(PduReqData pduReqData, PduRspData pduRspData) {
         int dataSize = pduReqData.getDataSize();
         // TODO 使用list辅助查询
         List<String> oidList = new ArrayList<>(oidDataMap.keySet());
@@ -126,7 +132,7 @@ public abstract class AbsSimulatorReceiveHandler<T> implements BizSnmpReceiveHan
         }
     }
 
-    private void handleSetOpt(PduReqData pduReqData, PduRspData pduRspData) {
+    public void handleSetOpt(PduReqData pduReqData, PduRspData pduRspData) {
         for (Map.Entry<String, String> entry : pduReqData.getDataMap().entrySet()) {
             String oid = entry.getKey();
             BaseOidInfo baseOidInfo = oidDataMap.get(oid);
@@ -153,7 +159,7 @@ public abstract class AbsSimulatorReceiveHandler<T> implements BizSnmpReceiveHan
         }
     }
 
-    private LinkedHashMap<String, BaseOidInfo<T>> loadOidCsvData(String oidDataFilePath) {
+    public LinkedHashMap<String, BaseOidInfo<T>> loadOidCsvData(String oidDataFilePath) {
         LinkedHashMap<String, BaseOidInfo<T>> oidDataMap = new LinkedHashMap<>();
         try (BufferedReader br = new BufferedReader(new FileReader(oidDataFilePath))) {
             String line;

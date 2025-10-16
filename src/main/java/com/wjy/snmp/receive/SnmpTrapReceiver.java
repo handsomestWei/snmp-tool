@@ -32,6 +32,7 @@ public class SnmpTrapReceiver implements CommandResponder {
             switch (pdu.getType()) {
                 case PDU.TRAP:
                 case PDU.V1TRAP:
+                    // TODO trap消息也支持转发：定义trap处理器以及ip源和目的映射。或者经过初次转发后自动保存ip映射关系实现动态
                     handler.handlePdu(SnmpHelper.wrapperPduReqData(pdu, event.getPeerAddress()));
                 default:
                     // not a Trap, ignore

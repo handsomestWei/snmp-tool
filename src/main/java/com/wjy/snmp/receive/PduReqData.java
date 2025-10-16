@@ -14,7 +14,9 @@ public class PduReqData {
     private String ip;
     private String port;
     private int optType;
+    private RelayInfo relayInfo;
 
     private int dataSize;
     private HashMap<String, String> dataMap;
+
 }

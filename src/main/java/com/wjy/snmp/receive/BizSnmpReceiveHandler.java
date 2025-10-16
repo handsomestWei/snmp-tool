@@ -1,7 +1,5 @@
 package com.wjy.snmp.receive;
 
-import org.snmp4j.PDU;
-
 /**
  * snmp接收报文业务处理接口
  *

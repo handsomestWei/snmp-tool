@@ -26,15 +26,15 @@ public class SnmpSimulatorServer implements Runnable {
     private static final String snmpOidDataCsvSuffix = "_snmp.csv";
     // 自定义oid处理器包前缀
     private static final String ctmHdlClazzPackagePrefix = "com.wjy.snmp.simulator.ctm.";
-    @CommandLine.Option(names = {"-conf", "--confFilePath"}, description = "simulator-config.properties file path.")
+    @CommandLine.Option(names = { "-conf", "--confFilePath" }, description = "simulator-config.properties file path.")
     String configFilePath = System.getProperty("user.dir") + "/simulator-config.properties";
-    @CommandLine.Option(names = {"-ip", "--ip"}, description = "server listen ip.")
+    @CommandLine.Option(names = { "-ip", "--ip" }, description = "server listen ip.")
     private String listenIp = "0.0.0.0";
-    @CommandLine.Option(names = {"-p", "--port"}, description = "server listen port.")
-    private int listenPort = 161;
-    @CommandLine.Option(names = {"-pool", "--poolSize"}, description = "snmp pool size with device num.")
+    @CommandLine.Option(names = { "-p", "--port" }, description = "server listen port.")
+    private int listenPort = 165;
+    @CommandLine.Option(names = { "-pool", "--poolSize" }, description = "snmp pool size with device num.")
     private int poolSize = 200;
-    @CommandLine.Option(names = {"-dir", "--dataDir"}, description = "oid data csv dir.")
+    @CommandLine.Option(names = { "-dir", "--dataDir" }, description = "oid data csv dir.")
     private String oidDataDir = System.getProperty("user.dir") + "/data/";
 
     public static void main(String[] args) throws Exception {
@@ -65,14 +65,15 @@ public class SnmpSimulatorServer implements Runnable {
         snmpV2.addCommandResponder(snmpReceiver);
         // 加载自定义处理器并注册
         HashMap<String, AbsSimulatorReceiveHandler> ctmOidHdlMap = this.loadCtmReceiveHandler(this.configFilePath,
-                this.oidDataDir);
+                this.oidDataDir, snmpV2);
         dispatchHandler.addCtmReceiveHandler(ctmOidHdlMap);
         System.out.println("snmp simulator server running and listenAddr: " + listenAddr);
         System.out.println("snmp simulator support oid: " + ctmOidHdlMap.keySet());
     }
 
     private HashMap<String, AbsSimulatorReceiveHandler> loadCtmReceiveHandler(String configFilePath,
-                                                                              String oidDataDir) throws Exception {
+            String oidDataDir,
+            SnmpV2 snmpV2) throws Exception {
         HashMap<String, AbsSimulatorReceiveHandler> oidHdlMap = new HashMap<>();
         try (InputStream input = Files.newInputStream(Paths.get(configFilePath))) {
             Properties prop = new Properties();
@@ -105,9 +106,10 @@ public class SnmpSimulatorServer implements Runnable {
                     // 实例化对象
                     Class<?> clazz = SnmpSimulatorServer.class.getClassLoader().loadClass(clazzFullName);
                     Constructor<?> constructor = clazz.getConstructor(String.class, Integer.class, Integer.class);
-                    AbsSimulatorReceiveHandler ctmHdl =
-                            (AbsSimulatorReceiveHandler) constructor.newInstance(oidDataFilePath,
-                                    randomNetWorkDelayMsSeed, randomErrorSeed);
+                    AbsSimulatorReceiveHandler ctmHdl = (AbsSimulatorReceiveHandler) constructor.newInstance(
+                            oidDataFilePath,
+                            randomNetWorkDelayMsSeed, randomErrorSeed);
+                    ctmHdl.setSnmpV2(snmpV2);
                     oidHdlMap.put(rootOid, ctmHdl);
                 } catch (Exception e) {
                     e.printStackTrace();

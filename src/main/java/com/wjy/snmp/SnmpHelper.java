@@ -2,6 +2,9 @@ package com.wjy.snmp;
 
 import com.wjy.snmp.receive.PduReqData;
 import com.wjy.snmp.receive.PduRspData;
+import com.wjy.snmp.receive.RelayInfo;
+
+import org.snmp4j.CommandResponderEvent;
 import org.snmp4j.PDU;
 import org.snmp4j.smi.*;
 import org.snmp4j.util.TableEvent;
@@ -117,5 +120,20 @@ public class SnmpHelper {
         }
         pdu.setVariableBindings(vbs);
         return pdu;
+    }
+
+    public static RelayInfo parseRelayInfo(CommandResponderEvent event) {
+        try {
+            String communityName = new String(event.getSecurityName());
+            // eg. "public@192.168.0.193@161"
+            String[] communityNameArray = communityName.split("@");
+            RelayInfo relayInfo = new RelayInfo();
+            relayInfo.setIp(communityNameArray[1]);
+            relayInfo.setPort(communityNameArray[2]);
+            relayInfo.setCommunityName(communityNameArray[3]);
+            return relayInfo;
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 }
