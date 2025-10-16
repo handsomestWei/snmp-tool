@@ -11,7 +11,10 @@ SNMP工具集，支持SNMP请求收发、Trap陷阱消息接收处理、海量SN
     + 封装出更易用的接口，简化调用流程，尤其是Table表格批量操作
     + 支持SNMP v1/v2c协议的数据发送。
     + 支持SNMP请求和响应，Trap陷阱消息接收处理。
-+ 设备模拟：提供[SNMP设备模拟器](/src/main/java/com/wjy/snmp/simulator/)java实现，支持海量设备模拟，只需提供oid文件和简单配置即可使用。支持自定义数据模拟扩展开发。
++ 设备模拟：提供[SNMP设备模拟器](/src/main/java/com/wjy/snmp/simulator/)java实现，只需提供oid文件和简单配置即可使用。
+    + 支持海量设备模拟。
+    + 支持消息转发。
+    + 支持自定义数据模拟扩展开发。
 + MIB解析：提供简单的MIB解析功能，规避[mibble](https://github.com/cederberg/mibble)`GPL-2.0`许可证风险。
 + 工具类: 提供SNMP数据转换和辅助功能。
 
