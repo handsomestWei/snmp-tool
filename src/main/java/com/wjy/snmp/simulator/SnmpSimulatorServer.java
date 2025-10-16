@@ -31,7 +31,7 @@ public class SnmpSimulatorServer implements Runnable {
     @CommandLine.Option(names = { "-ip", "--ip" }, description = "server listen ip.")
     private String listenIp = "0.0.0.0";
     @CommandLine.Option(names = { "-p", "--port" }, description = "server listen port.")
-    private int listenPort = 165;
+    private int listenPort = 161;
     @CommandLine.Option(names = { "-pool", "--poolSize" }, description = "snmp pool size with device num.")
     private int poolSize = 200;
     @CommandLine.Option(names = { "-dir", "--dataDir" }, description = "oid data csv dir.")
